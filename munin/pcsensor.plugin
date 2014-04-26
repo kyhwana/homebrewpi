@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Where is pcsensor located?
+PCSENSOR="/usr/bin/pcsensor"
+
+if [ ! -e ${PCSENSOR} ]; then
+	echo "pcsensor executable not found" >&2
+	exit -1
+fi
+
+if [ "${1}" = "config" ]; then
+	echo "graph_title TEMPer USB Thermometer 0"
+	echo "graph_scale no"
+	echo "graph_vlabel Celsius"
+	echo "graph_category sensors"
+	echo "graph_info This graph shows the temperature reported by the first attached TEMPer USB Thermometer"
+	echo "temp.warning :9"
+	echo "temp.critical :10"
+	echo "temp.label temperatue"
+	echo "temp.type GAUGE"
+else
+	echo -n "temp.value "
+        temp=`${PCSENSOR} -n 0 -cm | head -n1`
+	temp2=`echo $temp | awk -F "." '{ print $1 }'`
+	if [ "$temp2" -gt "110" ]; then
+                temp3=$(($temp2-255))
+                echo $temp3
+        else
+                ${PCSENSOR} -n 0 -cm | head -n1
+        fi
+	
+fi
